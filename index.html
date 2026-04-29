@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator HPP UMKM Pro</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 20px 15px;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .app {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .app-header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .app-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+        }
+        .app-sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        .section-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-teal  { background: #10b981; }
+        .dot-amber { background: #f59e0b; }
+        .dot-blue  { background: #3b82f6; }
+        
+        .section-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+        .section-total { font-size: 14px; color: #64748b; font-weight: 600; }
+        
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 120px 32px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .item-input {
+            height: 42px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 14px;
+            background: #fdfdfd;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .item-input:focus {
+            border-color: #10b981;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .del-btn {
+            width: 32px; height: 32px;
+            border: none; border-radius: 8px;
+            background: #fee2e2; color: #ef4444;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        
+        .add-btn {
+            width: 100%; padding: 10px;
+            background: #f1f5f9; border: 1px dashed #cbd5e1;
+            border-radius: 10px; color: #475569;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .hpp-box {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 16px; padding: 24px;
+            color: white; margin-bottom: 16px;
+            text-align: center;
+        }
+        .hpp-label { font-size: 13px; opacity: 0.9; font-weight: 500; margin-bottom: 4px; }
+        .hpp-value { font-size: 36px; font-weight: 800; }
+        
+        .margin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .margin-card {
+            background: #f8fafc; border: 2px solid #e2e8f0;
+            border-radius: 12px; padding: 12px; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .margin-card:active { transform: scale(0.98); }
+        .margin-card.active { border-color: #10b981; background: #ecfdf5; }
+        .m-pct { font-size: 12px; color: #64748b; font-weight: 600; }
+        .m-price { font-size: 16px; font-weight: 700; color: #0f172a; margin: 4px 0; }
+        .m-laba { font-size: 11px; color: #059669; font-weight: 600; }
+
+        .btn-reset {
+            width: 100%; padding: 14px; border: none;
+            background: white; color: #ef4444; font-weight: 700;
+            border-radius: 12px; cursor: pointer; border: 1px solid #fee2e2;
+            margin-top: 20px;
+        }
+        
+        @media print {
+            .add-btn, .del-btn, .btn-reset { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="app-header">
+            <h1 class="app-title">Kalkulator HPP UMKM</h1>
+            <p class="app-sub">Versi PWA Ready - Mandiri & Offline</p>
+        </div>
+
+        <div class="hpp-box">
+            <div class="hpp-label">HPP Per Unit</div>
+            <div class="hpp-value" id="res-hpp">Rp 0</div>
+            <div id="res-detail" style="font-size: 12px; opacity: 0.9; margin-top: 4px;">Tentukan biaya & jumlah unit</div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-label"><div class="dot dot-teal"></div><span class="section-title">Bahan Baku</span></div>
+                <span class="section-total" id="tot-bb">Rp 0</span>
+            </div>
+            <div id="list-bb"></div>
+            <button class="add-btn" onclick="addItem('bb')">+ Bahan Baru</button>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-label"><div class="dot dot-amber"></div><span class="section-title">Tenaga Kerja</span></div>
+                <span class="section-total" id="tot-tk">Rp 0</span>
+            </div>
+            <div id="list-tk"></div>
+            <button class="add-btn" onclick="addItem('tk')">+ Tenaga Kerja</button>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-label"><div class="dot dot-blue"></div><span class="section-title">Produksi</span></div>
+            </div>
+            <div class="item-row" style="grid-template-columns: 1fr 1fr;">
+                <input type="number" class="item-input" id="inp-qty" placeholder="Jumlah Unit" oninput="hitung()">
+                <input type="text" class="item-input" id="inp-satuan" placeholder="Satuan (Pcs/Kg)" oninput="hitung()">
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title" style="margin-bottom:15px;">Rekomendasi Harga Jual</div>
+            <div class="margin-grid" id="margin-grid"></div>
+        </div>
+
+        <button class="btn-reset" onclick="reset()">Reset Data</button>
+    </div>
+
+    <script>
+        let data = { bb: [{n:'', v:0}], tk: [{n:'', v:0}] };
+        let activeMargin = 30;
+
+        function fmt(v) { return 'Rp ' + Math.round(v).toLocaleString('id-ID'); }
+
+        function addItem(t) { data[t].push({n:'', v:0}); render(); }
+        function remItem(t, i) { if(data[t].length > 1) { data[t].splice(i,1); render(); hitung(); } }
+
+        function render() {
+            ['bb', 'tk'].forEach(t => {
+                const c = document.getElementById('list-'+t);
+                c.innerHTML = '';
+                data[t].forEach((item, i) => {
+                    const r = document.createElement('div');
+                    r.className = 'item-row';
+                    r.innerHTML = `
+                        <input class="item-input" placeholder="Nama" value="${item.n}" oninput="data['${t}'][${i}].n=this.value">
+                        <input class="item-input" type="number" placeholder="Rp" value="${item.v||''}" oninput="data['${t}'][${i}].v=parseFloat(this.value)||0; hitung()">
+                        <button class="del-btn" onclick="remItem('${t}',${i})">×</button>
+                    `;
+                    c.appendChild(r);
+                });
+            });
+        }
+
+        function hitung() {
+            const sum = t => data[t].reduce((a,b) => a + b.v, 0);
+            const tBB = sum('bb');
+            const tTK = sum('tk');
+            const qty = parseFloat(document.getElementById('inp-qty').value) || 0;
+            const sat = document.getElementById('inp-satuan').value || 'unit';
+
+            document.getElementById('tot-bb').innerText = fmt(tBB);
+            document.getElementById('tot-tk').innerText = fmt(tTK);
+
+            const total = tBB + tTK;
+            const hpp = qty > 0 ? total / qty : 0;
+
+            document.getElementById('res-hpp').innerText = fmt(hpp);
+            document.getElementById('res-detail').innerText = qty > 0 ? `Total Biaya ${fmt(total)} / ${qty} ${sat}` : 'Masukkan biaya & jumlah produksi';
+
+            const grid = document.getElementById('margin-grid');
+            grid.innerHTML = '';
+            [20, 30, 50].forEach(m => {
+                const price = hpp * (1 + m/100);
+                const card = document.createElement('div');
+                card.className = `margin-card ${m === activeMargin ? 'active' : ''}`;
+                card.innerHTML = `<div class="m-pct">Margin ${m}%</div><div class="m-price">${fmt(price)}</div><div class="m-laba">Laba ${fmt(price-hpp)}</div>`;
+                card.onclick = () => { activeMargin = m; hitung(); };
+                grid.appendChild(card);
+            });
+        }
+
+        function reset() {
+            if(confirm('Hapus semua data?')) {
+                data = { bb: [{n:'', v:0}], tk: [{n:'', v:0}] };
+                document.getElementById('inp-qty').value = '';
+                document.getElementById('inp-satuan').value = '';
+                render(); hitung();
+            }
+        }
+
+        render();
+        hitung();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
+            });
+        }
+    </script>
+</body>
+</html>
